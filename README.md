@@ -6,7 +6,7 @@ A visual editor for Minecraft server MOTDs: write it once, see exactly how it lo
 
 ![demo](docs/demo.gif)
 
-**Live demo:** https://523co.github.io/motd-studio/
+**Live demo:** https://armd.one/motd-studio/
 
 ## Features
 
