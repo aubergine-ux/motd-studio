@@ -1,0 +1,11 @@
+{
+  "name": "motd-studio",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A visual editor for Minecraft server MOTDs with a live server-list preview and one-click export.",
+  "type": "module",
+  "license": "MIT",
+  "scripts": {
+    "test": "node --test"
+  }
+}
