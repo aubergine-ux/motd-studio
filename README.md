@@ -1,52 +1,54 @@
 # motd-studio
 
-A visual editor for Minecraft server MOTDs: write it once, see exactly how it looks in the server list, and export it in whatever format your server needs.
+Design your Minecraft server's MOTD, see it in a server-list preview as you type, and copy it out in whatever format your server wants.
 
 ![screenshot](docs/screenshot.png)
 
 ![demo](docs/demo.gif)
 
-**Live demo:** https://armd.one/motd-studio/
+Try it: https://armd.one/motd-studio/
 
-## Features
+## Why
 
-- **Live server-list preview.** Server icon, name, both MOTD lines, player count and ping, drawn with the exact legacy color values and Minecraft-style 1px drop shadows (each channel at 25% brightness). You can switch the shadow off.
-- **Width meters.** Each line shows how many GUI pixels it uses out of the visible 270, and text past the edge is clipped just like in game.
-- **Obfuscated text (`&k`)** scrambles live. With `prefers-reduced-motion` turned on it holds still.
-- **Editor with a toolbar.** A plain two-line `&`-code textarea is the source of truth. Select some text, then click a color, a format or the hex picker to wrap it. The style that was active before is restored after your selection. `Ctrl+B`, `Ctrl+I` and `Ctrl+U` work too, and so does undo.
-- **One-click export** to five formats, each with its own copy button.
-- **Import** from any supported format. Paste it and the format is detected for you.
-- **Shareable links.** The MOTD lives in the URL hash, and your last session is restored from `localStorage`.
-- **Six starter templates.** One of them is a live demo of the formatting quirk described below.
-- **No dependencies.** Plain HTML, CSS and ES modules, with no build step.
+Writing an MOTD usually means editing `server.properties`, restarting, opening the game, and finding out the second line is cut off or the bold vanished. Then you do it again. This lets you skip most of that loop.
 
-### Export formats
+## What it does
+
+You type into a plain two-line textarea using `&` codes. Select some text and click a color or format in the toolbar, and it wraps the selection and puts the previous style back after it. Ctrl+B / I / U and undo work like you'd expect.
+
+The preview above it renders a server-list row with the real legacy color values and the game's 1px drop shadow. `&k` text scrambles (it holds still if you've turned on reduced motion). Under the preview, a meter for each line shows how much of the 270px visible width you've used, and anything past that gets clipped.
+
+From there you can copy it out in five formats, or paste an existing MOTD in any of them and it figures out which one it is. The URL updates as you type, so you can send someone a link, and your last session comes back when you reopen the page. There are a few starter templates if you'd rather not start from nothing.
+
+It's plain HTML, CSS and JS modules. No framework, no build.
+
+## Export formats
 
 | Format | Example | Hex colors |
 | --- | --- | :---: |
-| `server.properties` line | `motd=§6Hi\n§7there` | No, uses nearest legacy color |
-| Raw `§` codes | `§6Hi` | No, uses nearest legacy color |
-| `&` codes | `&6Hi` | No, uses nearest legacy color |
-| JSON text component | `{"text":"Hi","color":"#C084FC"}` | **Yes** |
-| MiniMessage | `<#c084fc>Hi` | **Yes** |
+| `server.properties` | `motd=\u00A76Hi\n\u00A77there` | no |
+| `§` codes | `§6Hi` | no |
+| `&` codes | `&6Hi` | no |
+| JSON text component | `{"text":"Hi","color":"#C084FC"}` | yes |
+| MiniMessage | `<#c084fc>Hi` | yes |
 
-When your MOTD contains hex colors, each legacy export shows an inline warning listing which legacy color stood in for each hex value. "Nearest" is measured with a weighted RGB distance.
+The three legacy formats only know 16 colors. If you've used a hex color, those exports swap it for the closest legacy one and tell you what they swapped.
 
-## The legacy formatting quirk
+## The color code gotcha
 
-In Java Edition, **a color code resets all active formatting**. Bold, italic, underline, strikethrough and obfuscated are all cleared whenever a color code appears.
+In Java Edition, a color code turns off any formatting that came before it:
 
 ```
-&l&6Gold    → gold, NOT bold   (the &6 wiped the &l)
-&6&lGold    → gold and bold
-&a&lHi &bthere → "Hi" is bold green, "there" is plain aqua
+&l&6Gold       gold, not bold. The &6 cancelled the &l
+&6&lGold       gold and bold
+&a&lHi &bthere "Hi" is bold green, "there" is plain aqua
 ```
 
-motd-studio models this rule in both directions. The parser clears formats on every color code, including hex colors. The serializer re-emits format codes after each color change, and when it needs to turn a format off it re-emits the color (or uses `&r`).
+So formats have to come after the color, every time the color changes. The editor follows the same rule the game does, so the preview won't lie to you about it, and the exports add the codes back after each color change. JSON and MiniMessage nest their styles, so they don't have this problem.
 
-JSON and MiniMessage don't have this problem. Their styles nest, and a color change leaves other formatting alone.
+The "Color reset quirk" template shows it side by side.
 
-## Formatting code reference
+## Code reference
 
 | Code | Color | Hex | | Code | Color | Hex |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -61,37 +63,19 @@ JSON and MiniMessage don't have this problem. Their styles nest, and a color cha
 
 | Code | Format | MiniMessage |
 | --- | --- | --- |
-| `&l` | bold | `<bold>` / `<b>` |
-| `&o` | italic | `<italic>` / `<i>` |
-| `&n` | underlined | `<underlined>` / `<u>` |
-| `&m` | strikethrough | `<strikethrough>` / `<st>` |
-| `&k` | obfuscated | `<obfuscated>` / `<obf>` |
+| `&l` | bold | `<bold>` or `<b>` |
+| `&o` | italic | `<italic>` or `<i>` |
+| `&n` | underline | `<underlined>` or `<u>` |
+| `&m` | strikethrough | `<strikethrough>` or `<st>` |
+| `&k` | obfuscated | `<obfuscated>` or `<obf>` |
 | `&r` | reset | `<reset>` |
-| `&#rrggbb` | hex color (editor only) | `<#rrggbb>` |
+| `&#rrggbb` | hex color | `<#rrggbb>` |
 
-On import, the `§x§r§r§g§g§b§b` hex form used by Spigot/BungeeCord is also understood.
+`&#rrggbb` is something the editor understands, not vanilla. Import also reads Spigot's `§x§r§r§g§g§b§b` form.
 
-## Project layout
+## Running it locally
 
-```
-index.html
-css/tokens.css      design tokens (palette, type, spacing; UI font swap point)
-css/app.css         layout and components
-js/mc-text.js       DOM-free parser/serializer for every format
-js/editor.js        textarea + toolbar
-js/preview.js       server-list rendering, width meters, obfuscation
-js/export.js        export cards and copy buttons
-js/state.js         URL hash, localStorage, templates
-js/app.js           wiring
-fonts/              Monocraft (woff2) + its license
-test/               node --test suite for mc-text.js
-```
-
-The visible MOTD width is set by `MOTD_WIDTH` in `js/preview.js`. It is the only place to change it, and the row, clipping and meters all follow it. The preview font is monospaced while Minecraft's is proportional, so treat the meter as a close estimate rather than an exact count. Narrow letters like `i` and `l` take less room in game.
-
-## Local development
-
-ES modules don't load from `file://`, so serve the folder:
+ES modules won't load over `file://`, so you need some kind of server:
 
 ```sh
 npx serve .
@@ -99,35 +83,29 @@ npx serve .
 python -m http.server
 ```
 
-Then open http://localhost:3000 (serve) or http://localhost:8000 (python).
-
 ## Tests
-
-Tests use Node's built-in runner (Node 18+), with nothing to install:
 
 ```sh
 npm test
-# same as: node --test
 ```
 
-They cover round-trips between every pair of formats, the color-resets-formatting rule, hex handling and nearest-color fallback, and format detection.
+This runs Node's built-in test runner (Node 18+, nothing to install). The tests cover converting between every pair of formats, the color reset rule, and the hex fallback.
 
-## Deploy
+## Deploying
 
-The site is static and every path is relative, so it works from a project subpath.
+It's a static site with relative paths, so GitHub Pages works as-is. Go to Settings → Pages, deploy from the `main` branch, root folder.
 
-1. Push to `main`.
-2. In the repo, go to **Settings → Pages**.
-3. Set **Source** to *Deploy from a branch*, choose `main` and `/ (root)`, then save.
+## Notes
+
+- The visible width lives in one constant, `MOTD_WIDTH` in `js/preview.js`, if you want to tune it.
+- The preview font is monospaced and Minecraft's isn't, so the width meter is close but not exact. Narrow letters like `i` and `l` take less room in game.
+- `js/mc-text.js` doesn't touch the DOM. All the parsing and serializing is in there if you want it for something else.
 
 ## Credits
 
-- Preview font: [Monocraft](https://github.com/IdreesInc/Monocraft) by Idrees Hassan, licensed under the [SIL Open Font License 1.1](fonts/Monocraft-OFL.txt). Bundled as woff2 conversions of the original release files.
-- UI font: [IBM Plex Mono](https://github.com/IBM/plex) (SIL Open Font License 1.1), loaded from Google Fonts.
+The preview uses [Monocraft](https://github.com/IdreesInc/Monocraft) by Idrees Hassan, under the [SIL Open Font License 1.1](fonts/Monocraft-OFL.txt). The UI is set in [IBM Plex Mono](https://github.com/IBM/plex), also OFL. There are no Mojang textures, fonts or logos in here. The background, icon and ping bars are all CSS.
 
-No Mojang textures, fonts or logos are used. The server-list backdrop, icon and ping bars are drawn with CSS.
-
-motd-studio is not an official Minecraft product. It is not approved by or associated with Mojang or Microsoft.
+Not an official Minecraft product. Not approved by or associated with Mojang or Microsoft.
 
 ## License
 
