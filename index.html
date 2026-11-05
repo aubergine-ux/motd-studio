@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MOTD Studio · Minecraft server MOTD editor</title>
+  <meta name="description" content="Design a Minecraft server MOTD with a live server-list preview, then export it as server.properties, § codes, & codes, JSON text or MiniMessage.">
+  <meta name="theme-color" content="#1a0a2e">
+  <meta property="og:title" content="MOTD Studio">
+  <meta property="og:description" content="A visual editor for Minecraft server MOTDs with a live server-list preview and one-click export.">
+  <meta property="og:type" content="website">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8' shape-rendering='crispEdges'%3E%3Crect width='8' height='8' fill='%231a0a2e'/%3E%3Crect x='1' y='1' width='6' height='2' fill='%23c084fc'/%3E%3Crect x='1' y='4' width='4' height='1' fill='%23e8d5ff'/%3E%3Crect x='1' y='6' width='5' height='1' fill='%236b21a8'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preload" href="fonts/Monocraft-Regular.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/app.css">
+  <script type="module" src="js/app.js"></script>
+</head>
+<body>
+  <a class="skip" href="#motd">Skip to editor</a>
+
+  <header class="masthead">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true"></span>
+      <span class="brand-name">motd<span class="brand-dot">.</span>studio</span>
+    </div>
+    <p class="tagline">Your server's first line. Make it count.</p>
+  </header>
+
+  <main>
+    <section class="stage" id="preview" aria-labelledby="preview-heading">
+      <div class="stage-head">
+        <h1 id="preview-heading" class="eyebrow">Server list preview</h1>
+        <div class="stage-tools">
+          <label class="toggle">
+            <input type="checkbox" id="shadow-toggle" checked>
+            <span class="toggle-track" aria-hidden="true"></span>
+            Text shadow
+          </label>
+          <button type="button" class="btn btn-ghost" id="share" data-what="share link" aria-label="Copy share link">
+            <span class="copy-icon" aria-hidden="true"></span><span class="copy-label">Copy</span>
+            <span class="share-word">link</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="screen">
+        <div class="server-row" aria-hidden="true">
+          <div class="server-icon"></div>
+          <div class="server-name"></div>
+          <div class="server-meta">
+            <span class="players"><span>128</span><span class="slash">/</span><span>500</span></span>
+            <span class="ping" title="Ping"><i></i><i></i><i></i><i></i><i></i></span>
+          </div>
+          <div class="motd-line l1"><span class="motd-text"></span></div>
+          <div class="motd-line l2"><span class="motd-text"></span></div>
+        </div>
+        <div class="server-row ghost" aria-hidden="true">
+          <div class="server-icon"></div>
+          <div class="ghost-bar w1"></div>
+          <div class="ghost-bar w2"></div>
+          <div class="ghost-bar w3"></div>
+        </div>
+        <p class="preview-text visually-hidden"></p>
+      </div>
+
+      <div class="meters">
+        <div class="meter" role="meter" aria-label="Line 1 width" aria-valuemin="0">
+          <span class="meter-label">Line 1</span>
+          <span class="meter-track"><span class="meter-fill"></span></span>
+          <span class="meter-value"></span>
+        </div>
+        <div class="meter" role="meter" aria-label="Line 2 width" aria-valuemin="0">
+          <span class="meter-label">Line 2</span>
+          <span class="meter-track"><span class="meter-fill"></span></span>
+          <span class="meter-value"></span>
+        </div>
+      </div>
+    </section>
+
+    <section class="templates-bar" aria-labelledby="templates-heading">
+      <h2 id="templates-heading" class="eyebrow">Start from</h2>
+      <div class="templates" id="templates"></div>
+    </section>
+
+    <div class="workbench">
+      <section class="panel" aria-labelledby="editor-heading">
+        <div class="panel-head">
+          <h2 id="editor-heading">Editor</h2>
+          <span class="panel-note">2 lines · &amp; codes</span>
+        </div>
+
+        <label class="field">
+          <span class="field-label">Server name</span>
+          <input type="text" id="server-name" maxlength="40" autocomplete="off" spellcheck="false">
+        </label>
+
+        <div class="field">
+          <span class="field-label" id="motd-label">MOTD</span>
+          <div class="toolbar" id="toolbar" role="toolbar" aria-label="Formatting codes" aria-controls="motd"></div>
+          <textarea id="motd" rows="2" wrap="off" spellcheck="false" autocomplete="off"
+            aria-labelledby="motd-label" aria-describedby="motd-help"></textarea>
+          <p class="help" id="motd-help">
+            Select text, then pick a color or format. In Java Edition a color code
+            <strong>clears bold, italic and the rest</strong>, so put formats after colors:
+            <code>&amp;6&amp;l</code>, not <code>&amp;l&amp;6</code>.
+          </p>
+        </div>
+
+        <details class="import">
+          <summary>Import an existing MOTD</summary>
+          <p class="help">Paste a server.properties line, § or &amp; codes, JSON text or MiniMessage. The format is detected for you.</p>
+          <textarea id="import-text" rows="3" spellcheck="false" aria-label="MOTD to import"
+            placeholder='{"text":"","extra":[{"text":"Hello","color":"gold"}]}'></textarea>
+          <div class="import-row">
+            <button type="button" class="btn" id="import-run">Load into editor</button>
+            <p class="import-status" id="import-status" role="status"></p>
+          </div>
+        </details>
+      </section>
+
+      <section class="panel" aria-labelledby="export-heading">
+        <div class="panel-head">
+          <h2 id="export-heading">Export</h2>
+          <span class="panel-note">one click, any format</span>
+        </div>
+        <div class="exports" id="exports"></div>
+      </section>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <p>Preview font: <a href="https://github.com/IdreesInc/Monocraft">Monocraft</a> by Idrees Hassan, SIL OFL 1.1.</p>
+    <p>Not an official Minecraft product. Not approved by or associated with Mojang or Microsoft.</p>
+  </footer>
+
+  <template id="export-card">
+    <article class="export">
+      <header class="export-head">
+        <div class="export-text">
+          <h3 class="export-title"></h3>
+          <span class="badge"></span>
+          <p class="export-hint"></p>
+        </div>
+        <button type="button" class="btn copy"><span class="copy-icon" aria-hidden="true"></span><span class="copy-label">Copy</span></button>
+      </header>
+      <pre><code></code></pre>
+      <p class="warn" hidden></p>
+    </article>
+  </template>
+
+  <div class="visually-hidden" id="live" aria-live="polite"></div>
+</body>
+</html>
