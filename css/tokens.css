@@ -1,0 +1,67 @@
+/* ------------------------------------------------------------------
+   Design tokens
+   ------------------------------------------------------------------
+
+   UI FONT SWAP POINT
+   The UI uses IBM Plex Mono from Google Fonts. To swap it, replace the
+   @import below (or drop it and add a local @font-face pointing into
+   fonts/), then change --font-ui. Nothing else references the family.
+   The pixel font is only used inside the server-list preview.          */
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,600;1,400&display=swap");
+
+:root {
+  --font-ui: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  --font-pixel: "Monocraft", ui-monospace, monospace;
+
+  /* Palette */
+  --plum-950: #1a0a2e;
+  --plum-800: #2d1254;
+  --plum-600: #6b21a8;
+  --plum-300: #c084fc;
+  --plum-100: #e8d5ff;
+
+  /* Roles */
+  --bg: var(--plum-950);
+  --bg-deep: #12061f;
+  --surface: color-mix(in oklab, var(--plum-800) 55%, var(--plum-950));
+  --surface-raised: color-mix(in oklab, var(--plum-800) 80%, var(--plum-950));
+  --well: color-mix(in oklab, var(--plum-950) 70%, black);
+  --line: color-mix(in oklab, var(--plum-300) 16%, transparent);
+  --line-strong: color-mix(in oklab, var(--plum-300) 38%, transparent);
+  --text: var(--plum-100);
+  --text-dim: color-mix(in oklab, var(--plum-100) 64%, var(--plum-950));
+  --text-faint: color-mix(in oklab, var(--plum-100) 40%, var(--plum-950));
+  --accent: var(--plum-300);
+  --accent-strong: var(--plum-600);
+  --ok: #86efac;
+  --warn: #fcd679;
+  --danger: #ff8f8f;
+
+  /* Spacing */
+  --s-1: 4px;
+  --s-2: 8px;
+  --s-3: 12px;
+  --s-4: 16px;
+  --s-5: 24px;
+  --s-6: 32px;
+  --s-7: 48px;
+  --s-8: 72px;
+
+  /* Type */
+  --t-xs: 0.75rem;
+  --t-sm: 0.8125rem;
+  --t-md: 0.9375rem;
+  --t-lg: 1.125rem;
+  --t-xl: clamp(1.5rem, 1.1rem + 1.6vw, 2.125rem);
+
+  /* Shape and motion */
+  --r-sm: 6px;
+  --r-md: 10px;
+  --r-lg: 18px;
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --fast: 140ms;
+  --slow: 320ms;
+  --focus-ring: 0 0 0 2px var(--bg), 0 0 0 4px var(--accent);
+  --page-max: 1120px;
+  --gutter: clamp(16px, 4vw, 40px);
+}
